@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using EksploracjaDanych.Models
 
 <PageTitle>Eksploracja danych</PageTitle>
 <h1>Wyznaczanie modelu</h1>
@@ -19,17 +20,45 @@
 {
     <p class="text-danger">Zły format pliku\Brak pliku.</p>
 }
-<button type="button" class="btn btn-outline-dark mt-2" @onclick="Generate">Oblicz dane</button>
+<button type="button" class="btn btn-outline-dark mt-2" @onclick="Generate">
+    @if (_loading)
+    {
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <span>Generuję...</span>
+    }
+    else
+    {
+        <span>Oblicz dane</span>
+    }
+</button>
+
+@if (_calculated)
+{
+    if ((ModelType)_modelType == ModelType.Classification)
+    {
+        <div class="mt-3">
+             <ConfusionTable ConfusionMatrix="@_classificationMatrix1" Title="Model pierwszy" />
+             <ConfusionTable ConfusionMatrix="@_classificationMatrix2" Title="Model drugi" />
+        </div>
+    }
+}
 
 
 @code
 {
     private readonly int _maxAllowedFileSize = 1024 * 1024 * 1024 * 1;
+
     private bool _isBadModel;
     private bool _wrongFileType;
+    private bool _loading;
+    private bool _calculated;
     private int _modelType = -1;
+    
     private IBrowserFile? _file;
 
+    private ConfusionMatrix _classificationMatrix1 = null!;
+    private ConfusionMatrix _classificationMatrix2 = null!;
+    
     private Task OnInputFileChange(InputFileChangeEventArgs e)
     {
         var file = e.File;
@@ -65,6 +94,7 @@
             return;
         }
         _wrongFileType = false;
+        _loading = true;
 
         var reader =
             await new StreamReader(_file.OpenReadStream(_maxAllowedFileSize)).ReadToEndAsync();
@@ -73,10 +103,16 @@
         {
             case ModelType.Classification:
                 Classification(data);
+                _loading = false;
+                _calculated = true;
                 break;
+
             case ModelType.Regression:
                 Regression(data);
+                _loading = false;
+                _calculated = true;
                 break;
+         
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -84,13 +120,50 @@
 
     private void Classification(List<string[]> data)
     {
-        throw new NotImplementedException();
+        var confusionMatrixModel1 = new ConfusionMatrix();
+        var confusionMatrixModel2 = new ConfusionMatrix();
+
+        foreach (var row in data.Skip(1).SkipLast(1).ToList())
+        {
+            var realValue = row[0];
+            var model1Value = row[1];
+            var model2Value = row[3];
+
+    // True value == <=50k
+            if (realValue.Equals("<=50K"))
+            {
+                if (model1Value == realValue)
+                    confusionMatrixModel1.AddTruePositive();
+                else
+                    confusionMatrixModel1.AddFalseNegative();
+
+                if (model2Value == realValue)
+                    confusionMatrixModel2.AddTruePositive();
+                else
+                    confusionMatrixModel2.AddFalseNegative();
+            }
+
+    // False value == >50k
+            else if (row[0].Equals(">50K"))
+            {
+                if (model1Value == realValue)
+                    confusionMatrixModel1.AddTrueNegative();
+                else
+                    confusionMatrixModel1.AddFalsePositive();
+
+                if (model2Value == realValue)
+                    confusionMatrixModel2.AddTrueNegative();
+                else
+                    confusionMatrixModel2.AddFalsePositive();
+            }
+        }
+        _classificationMatrix1 = confusionMatrixModel1;
+        _classificationMatrix2 = confusionMatrixModel2;
     }
 
     private void Regression(List<string[]> data)
     {
         var fixedData = data.Skip(1).SkipLast(1).Select(x => x.Select(y => double.Parse(y)).ToArray()).ToList();
-        throw new NotImplementedException();
     }
 
     private enum ModelType

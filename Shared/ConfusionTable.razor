@@ -1,0 +1,24 @@
+@using EksploracjaDanych.Models
+<div>
+    <h4>@Title</h4>
+    <div>
+        <p>Prawdziwie negatywne = @ConfusionMatrix.GetTN()</p>
+        <p>Fałszywie negatywne = @ConfusionMatrix.GetFN()</p>
+        <p>Prawdziwie pozytywne = @ConfusionMatrix.GetTP()</p>
+        <p>Fałszywie pozytywne = @ConfusionMatrix.GetFP()</p>
+        <p>Trafność = @ConfusionMatrix.Accuracy()</p>
+        <p>Czułość = @ConfusionMatrix.Sensitivity()</p>
+        <p>Precyzja = @ConfusionMatrix.Precision()</p>
+        <p>Swoistość = @ConfusionMatrix.Specificity()</p>
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public string Title { get; set; }
+
+    [Parameter]
+    public ConfusionMatrix ConfusionMatrix { get; set; }
+
+}
