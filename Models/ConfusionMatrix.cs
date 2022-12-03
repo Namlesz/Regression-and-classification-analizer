@@ -66,4 +66,9 @@ public class ConfusionMatrix
     {
         return TN / (TN + FP);
     }
+    
+    public double F1Score()
+    {
+        return 2 * (Precision() * Sensitivity()) / (Precision() + Sensitivity());
+    }
 }

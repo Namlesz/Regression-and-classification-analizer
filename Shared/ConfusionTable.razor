@@ -1,15 +1,18 @@
 @using EksploracjaDanych.Models
-<div>
-    <h4>@Title</h4>
-    <div>
-        <p>Prawdziwie negatywne = @ConfusionMatrix.GetTN()</p>
-        <p>Fałszywie negatywne = @ConfusionMatrix.GetFN()</p>
-        <p>Prawdziwie pozytywne = @ConfusionMatrix.GetTP()</p>
-        <p>Fałszywie pozytywne = @ConfusionMatrix.GetFP()</p>
-        <p>Trafność = @ConfusionMatrix.Accuracy()</p>
-        <p>Czułość = @ConfusionMatrix.Sensitivity()</p>
-        <p>Precyzja = @ConfusionMatrix.Precision()</p>
-        <p>Swoistość = @ConfusionMatrix.Specificity()</p>
+
+<div class="card bg-light mb-3 w-50">
+    <div class="card-header">Model klasyfikacyjny</div>
+    <div class="card-body">
+        <h5 class="card-title">@Title</h5>
+        <p class="card-text">Prawdziwie negatywne = @ConfusionMatrix.GetTN()</p>
+        <p class="card-text">Fałszywie negatywne = @ConfusionMatrix.GetFN()</p>
+        <p class="card-text">Prawdziwie pozytywne = @ConfusionMatrix.GetTP()</p>
+        <p class="card-text">Fałszywie pozytywne = @ConfusionMatrix.GetFP()</p>
+        <p class="card-text">Trafność = @ConfusionMatrix.Accuracy()</p>
+        <p class="card-text">Czułość = @ConfusionMatrix.Sensitivity()</p>
+        <p class="card-text">Precyzja = @ConfusionMatrix.Precision()</p>
+        <p class="card-text">Swoistość = @ConfusionMatrix.Specificity()</p>
+        <p class="card-text">F1 = @ConfusionMatrix.F1Score()</p>
     </div>
 </div>
 
@@ -19,6 +22,6 @@
     public string Title { get; set; }
 
     [Parameter]
-    public ConfusionMatrix ConfusionMatrix { get; set; }
+    public ConfusionMatrix ConfusionMatrix { get; set; } = null!;
 
 }

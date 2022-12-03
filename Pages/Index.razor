@@ -1,64 +1,67 @@
 ﻿@page "/"
 @using EksploracjaDanych.Models
-
 <PageTitle>Eksploracja danych</PageTitle>
-<h1>Wyznaczanie modelu</h1>
+<div class="form-group">
+    <h1 class="text-lg-center">Wyznaczanie modelu</h1>
 
-<select class="form-select mt-2" id="dataType" style="width: 25%" @bind="_modelType">
-    <option selected value="-1">Wybierz model</option>
-    <option value="0">MODEL KLASYFIKACYJNY</option>
-    <option value="1">MODEL REGRESYJNY</option>
-</select>
+    <select class="form-select mt-2" id="dataType" @bind="_modelType">
+        <option selected value="-1">Wybierz model</option>
+        <option value="0">MODEL KLASYFIKACYJNY</option>
+        <option value="1">MODEL REGRESYJNY</option>
+    </select>
 
-@if (_isBadModel)
-{
-    <p class="text-danger">Proszę wybrać poprawny model.</p>
-}
-
-<InputFile class="form-control mt-2" style="width: 25%" OnChange="@OnInputFileChange"/>
-@if (_wrongFileType)
-{
-    <p class="text-danger">Zły format pliku\Brak pliku.</p>
-}
-<button type="button" class="btn btn-outline-dark mt-2" @onclick="Generate">
-    @if (_loading)
+    @if (_isBadModel)
     {
-        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        <span>Generuję...</span>
+        <p class="text-danger">Proszę wybrać poprawny model.</p>
     }
-    else
+
+    <InputFile class="form-control mt-2" OnChange="@OnInputFileChange"/>
+    @if (_wrongFileType)
     {
-        <span>Oblicz dane</span>
+        <p class="text-danger">Zły format pliku\Brak pliku.</p>
     }
-</button>
+    <button type="button" class="btn btn-outline-dark mt-2 float-end" @onclick="Generate">
+        @if (_loading)
+        {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span>Generuję...</span>
+        }
+        else
+        {
+            <span>Oblicz dane</span>
+        }
+    </button>
+</div>
 
 @if (_calculated)
 {
     if ((ModelType)_modelType == ModelType.Classification)
     {
-        <div class="mt-3">
-             <ConfusionTable ConfusionMatrix="@_classificationMatrix1" Title="Model pierwszy" />
-             <ConfusionTable ConfusionMatrix="@_classificationMatrix2" Title="Model drugi" />
+        <div class="mt-3 d-inline-flex w-100">
+            <ConfusionTable ConfusionMatrix="@_classificationMatrix1" Title="Model pierwszy"/>
+            <ConfusionTable ConfusionMatrix="@_classificationMatrix2" Title="Model drugi"/>
+            <LineChart Values="@_values.ToList()" Min="-1" Max="100"></LineChart>
         </div>
     }
 }
-
 
 @code
 {
     private readonly int _maxAllowedFileSize = 1024 * 1024 * 1024 * 1;
 
+    // sample double array
+    private double[] _values = new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
     private bool _isBadModel;
     private bool _wrongFileType;
     private bool _loading;
     private bool _calculated;
     private int _modelType = -1;
-    
+
     private IBrowserFile? _file;
 
     private ConfusionMatrix _classificationMatrix1 = null!;
     private ConfusionMatrix _classificationMatrix2 = null!;
-    
+
     private Task OnInputFileChange(InputFileChangeEventArgs e)
     {
         var file = e.File;
@@ -112,7 +115,7 @@
                 _loading = false;
                 _calculated = true;
                 break;
-         
+
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -130,7 +133,7 @@
             var model2Value = row[3];
 
     // True value == <=50k
-            if (realValue.Equals("<=50K"))
+            if (realValue.Equals(">50K"))
             {
                 if (model1Value == realValue)
                     confusionMatrixModel1.AddTruePositive();
@@ -144,7 +147,7 @@
             }
 
     // False value == >50k
-            else if (row[0].Equals(">50K"))
+            else if (row[0].Equals("<=50K"))
             {
                 if (model1Value == realValue)
                     confusionMatrixModel1.AddTrueNegative();
@@ -164,6 +167,7 @@
     private void Regression(List<string[]> data)
     {
         var fixedData = data.Skip(1).SkipLast(1).Select(x => x.Select(y => double.Parse(y)).ToArray()).ToList();
+        
     }
 
     private enum ModelType

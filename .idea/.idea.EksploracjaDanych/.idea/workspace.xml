@@ -6,10 +6,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a3f2934a-39d1-448f-83cc-cd31d5a84353" name="Changes" comment="Add some logic">
-      <change afterPath="$PROJECT_DIR$/Models/ConfusionMatrix.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Shared/ConfusionTable.razor" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Shared/LineChart.razor" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.EksploracjaDanych/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.EksploracjaDanych/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/ConfusionMatrix.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/ConfusionMatrix.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Pages/Index.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Index.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Shared/ConfusionTable.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Shared/ConfusionTable.razor" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -88,7 +89,7 @@
       <updated>1669835076051</updated>
       <workItem from="1669835084154" duration="51000" />
       <workItem from="1669835211353" duration="11691000" />
-      <workItem from="1670072188678" duration="7387000" />
+      <workItem from="1670072188678" duration="9752000" />
     </task>
     <task id="LOCAL-00001" summary="Add some logic">
       <created>1670074793214</created>
