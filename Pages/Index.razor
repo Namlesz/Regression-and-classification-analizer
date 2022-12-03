@@ -30,7 +30,7 @@
     private int _modelType = -1;
     private IBrowserFile? _file;
 
-    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    private Task OnInputFileChange(InputFileChangeEventArgs e)
     {
         var file = e.File;
         try
@@ -38,7 +38,7 @@
             if (file.ContentType != "text/csv")
             {
                 _wrongFileType = true;
-                return;
+                return Task.CompletedTask;
             }
 
             _file = file;
@@ -47,38 +47,50 @@
         {
             Console.WriteLine(ex);
         }
+        return Task.CompletedTask;
     }
 
     private async Task Generate()
     {
-        if (_modelType == (int)ModelType.Default)
+        if (_modelType is (int)ModelType.Default)
         {
             _isBadModel = true;
             return;
         }
         _isBadModel = false;
 
-        if (_file == null)
+        if (_file is null)
         {
             _wrongFileType = true;
             return;
         }
         _wrongFileType = false;
 
-
         var reader =
             await new StreamReader(_file.OpenReadStream(_maxAllowedFileSize)).ReadToEndAsync();
+        var data = reader.Split("\r\n").Select(x => x.Split(",")).ToList();
+        switch ((ModelType)_modelType)
+        {
+            case ModelType.Classification:
+                Classification(data);
+                break;
+            case ModelType.Regression:
+                Regression(data);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
 
-        if (ModelType.Regression == (ModelType)_modelType)
-        {
-            var format = reader.Replace("\",\"", "\";\"");
-            var data = format.Split("\r\n").Select(x => x.Split(";")).ToArray();
-        }
-        
-        if (ModelType.Classification == (ModelType)_modelType)
-        {
-            var data = reader.Split("\r\n").Select(x => x.Split(",")).ToArray();
-        }
+    private void Classification(List<string[]> data)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void Regression(List<string[]> data)
+    {
+        var fixedData = data.Skip(1).SkipLast(1).Select(x => x.Select(y => double.Parse(y)).ToArray()).ToList();
+        throw new NotImplementedException();
     }
 
     private enum ModelType
