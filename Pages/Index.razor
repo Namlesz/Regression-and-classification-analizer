@@ -37,10 +37,15 @@
 {
     if ((ModelType)_modelType == ModelType.Classification)
     {
-        <div class="mt-3 d-inline-flex w-100">
-            <ConfusionTable ConfusionMatrix="@_classificationMatrix1" Title="Model pierwszy"/>
-            <ConfusionTable ConfusionMatrix="@_classificationMatrix2" Title="Model drugi"/>
-            <LineChart Values="@_values.ToList()" Min="-1" Max="100"></LineChart>
+        <div class="mt-3 w-100">
+            <div class="mt-5 d-inline-flex w-100">
+                <ConfusionTable ConfusionMatrix="@_classificationMatrix1" Title="Model pierwszy"/>
+                <LineChart Values="@_values.ToList()" Min="0" Max="100"></LineChart>
+            </div>
+            <div class="mt-5 d-inline-flex w-100">
+                <ConfusionTable ConfusionMatrix="@_classificationMatrix2" Title="Model drugi"/>
+                <LineChart Values="@_values.ToList()" Min="0" Max="100"></LineChart>
+            </div>
         </div>
     }
 }
@@ -167,7 +172,6 @@
     private void Regression(List<string[]> data)
     {
         var fixedData = data.Skip(1).SkipLast(1).Select(x => x.Select(y => double.Parse(y)).ToArray()).ToList();
-        
     }
 
     private enum ModelType

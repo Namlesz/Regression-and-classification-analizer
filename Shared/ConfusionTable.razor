@@ -1,9 +1,9 @@
 @using EksploracjaDanych.Models
 
 <div class="card bg-light mb-3 w-50">
-    <div class="card-header">Model klasyfikacyjny</div>
+    <div class="card-header">@Title</div>
     <div class="card-body">
-        <h5 class="card-title">@Title</h5>
+        <h5 class="card-title">Model klasyfikacyjny</h5>
         <p class="card-text">Prawdziwie negatywne = @ConfusionMatrix.GetTN()</p>
         <p class="card-text">Fałszywie negatywne = @ConfusionMatrix.GetFN()</p>
         <p class="card-text">Prawdziwie pozytywne = @ConfusionMatrix.GetTP()</p>
