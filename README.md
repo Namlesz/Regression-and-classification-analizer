@@ -1,1 +1,1 @@
-# EksploracjaDanych
+# Eksploracja Danych
