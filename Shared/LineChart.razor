@@ -2,53 +2,35 @@
     <g stroke="gray" text-anchor="end">
         <text x="40" y="@ZeroY">0</text>
         <text x="40" y="15">@Max</text>
-        <text x="40" y="@GraphHeight" stroke="green">@Min</text>
         <line x1="50" x2="50" y1="0" y2="@GraphHeight"/>
         <line x1="50" x2="@(GraphWidth + 50)" y1="@ZeroY" y2="@ZeroY"/>
     </g>
-
     <g>
         <polyline stroke="blue" fill="none" points="@PointList"/>
     </g>
 
-    @foreach (var (x, y) in Values.Select((value, index) => (index, value)))
+    @foreach (var (x, y) in Values.Select(value => (value.Item1, value.Item2)))
     {
-        <circle cx=@(Xpos(x)) cy=@(Ypos(y)) r="4" fill=@(x == _selectedPoint ? "lightblue" : "black")/>
-        @* Render a transparent circle with a larger radius to provide a proper hitbox *@
-        <circle cx=@(Xpos(x)) cy=@(Ypos(y)) r="20" fill="transparent" @onclick=@(_ => _selectedPoint = x)/>
-    }
-
-    @if (_selectedPoint != null)
-    {
-        <g text-anchor="middle">
-            <text class="outline" x=@(Xpos(_selectedPoint.Value)) y=@(Ypos(Values[_selectedPoint.Value]) + 20)>@SelectedPointInfo</text>
-            <text x=@(Xpos(_selectedPoint.Value)) y=@(Ypos(Values[_selectedPoint.Value]) + 20)>@SelectedPointInfo</text>
-        </g>
+        <circle cx=@(Xpos(x)) cy=@(Ypos(y)) r="1" fill="lightblue"/>
     }
 </svg>
 
 @code {
-
     [Parameter]
-    public List<double> Values { get; set; } = new();
-
-    [Parameter]
-    public double Max { get; set; }
-
-    [Parameter]
-    public double Min { get; set; }
-
-    private int? _selectedPoint;
-
+    public List<Tuple<double, double>> Values { get; set; } = new();
+    
     private const double GraphHeight = 300.0;
     private const double GraphWidth = 500.0;
-
+    
+    private double Max => Values.Max(value => value.Item2);
+    private double Min => Values.Min(value => value.Item2);
+    
     private double GraphRange => Math.Abs(Max) + Math.Abs(Min);
     private double ZeroY => Math.Abs(Max) / GraphRange * GraphHeight;
 
-    private double Xpos(int x)
+    private double Xpos(double x)
     {
-        return 50.0 + x * (GraphWidth / (Values.Count - 1));
+        return 50.0 + x * (GraphWidth / Values.Select(x => x.Item1).Max());
     }
 
     private double Ypos(double y)
@@ -60,10 +42,8 @@
     private string PointList =>
         string.Join(" ",
             Values.Select(
-                (y, index) => $"{Xpos(index)},{Ypos(y)}"
+                (y) => $"{Xpos(y.Item1)},{Ypos(y.Item2)}"
                 )
             );
-
-    private string SelectedPointInfo => $"x={_selectedPoint}, y={Values[_selectedPoint.Value]:0.000}";
 
 }

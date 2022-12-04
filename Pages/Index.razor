@@ -1,9 +1,9 @@
 ﻿@page "/"
 @using EksploracjaDanych.Models
+
 <PageTitle>Eksploracja danych</PageTitle>
 <div class="form-group">
     <h1 class="text-lg-center">Wyznaczanie modelu</h1>
-
     <select class="form-select mt-2" id="dataType" @bind="_modelType">
         <option selected value="-1">Wybierz model</option>
         <option value="0">MODEL KLASYFIKACYJNY</option>
@@ -12,14 +12,15 @@
 
     @if (_isBadModel)
     {
-        <p class="text-danger">Proszę wybrać poprawny model.</p>
+        <p class="text-danger mt-1">Proszę wybrać poprawny model.</p>
     }
 
     <InputFile class="form-control mt-2" OnChange="@OnInputFileChange"/>
     @if (_wrongFileType)
     {
-        <p class="text-danger">Zły format pliku\Brak pliku.</p>
+        <p class="text-danger mt-1">Zły format pliku.</p>
     }
+
     <button type="button" class="btn btn-outline-dark mt-2 float-end" @onclick="Generate">
         @if (_loading)
         {
@@ -28,7 +29,7 @@
         }
         else
         {
-            <span>Oblicz dane</span>
+            <span>Oblicz model</span>
         }
     </button>
 </div>
@@ -37,18 +38,20 @@
 {
     <div class="mt-3 w-100">
 
-        @if ((ModelType)_modelType == ModelType.Classification && _classificationMatrix1 is not null && _classificationMatrix2 is not null)
+        @if ((ModelType)_modelType == ModelType.Classification &&
+             _classificationModel1 is not null && _classificationModel2 is not null)
         {
             <div class="mt-5 d-inline-flex w-100">
-                <ConfusionTable TargetModel="@_classificationMatrix1" Title="Model pierwszy" ComparativeModel="@_classificationMatrix2"/>
-                <LineChart Values="@_values.ToList()" Min="0" Max="100"/>
+                <ConfusionTable Title="Model pierwszy" TargetModel="@_classificationModel1" ComparativeModel="@_classificationModel2"/>
+                <LineChart Values="@_rocValues2"/>
             </div>
             <div class="mt-5 d-inline-flex w-100">
-                <ConfusionTable TargetModel="@_classificationMatrix2" Title="Model drugi" ComparativeModel="@_classificationMatrix1"/>
-                <LineChart Values="@_values.ToList()" Min="0" Max="100"/>
+                <ConfusionTable Title="Model drugi" TargetModel="@_classificationModel2" ComparativeModel="@_classificationModel1"/>
+                <LineChart Values="@_rocValues2"/>
             </div>
         }
-        @if ((ModelType)_modelType == ModelType.Regression && _regressionModel1 is not null && _regressionModel2 is not null)
+        @if ((ModelType)_modelType == ModelType.Regression &&
+             _regressionModel1 is not null && _regressionModel2 is not null)
         {
             <div class="mt-5 d-inline-flex w-100">
                 <RegressionResult Title="Model pierwszy" TargetModel="@_regressionModel1" ComparativeModel="@_regressionModel2"/>
@@ -62,8 +65,6 @@
 {
     private readonly int _maxAllowedFileSize = 1024 * 1024 * 1024 * 1;
 
-    // sample double array
-    private double[] _values = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
     private bool _isBadModel;
     private bool _wrongFileType;
     private bool _loading;
@@ -72,11 +73,14 @@
 
     private IBrowserFile? _file;
 
-    private ConfusionMatrix? _classificationMatrix1;
-    private ConfusionMatrix? _classificationMatrix2;
+    private ClassificationModel? _classificationModel1;
+    private ClassificationModel? _classificationModel2;
 
     private RegressionModel? _regressionModel1;
     private RegressionModel? _regressionModel2;
+
+    private List<Tuple<double, double>> _rocValues1 = new(new[] { new Tuple<double, double>(0.0, 0.0) });
+    private List<Tuple<double, double>> _rocValues2 = new(new[] { new Tuple<double, double>(0.0, 0.0) });
 
     private Task OnInputFileChange(InputFileChangeEventArgs e)
     {
@@ -88,7 +92,6 @@
                 _wrongFileType = true;
                 return Task.CompletedTask;
             }
-
             _file = file;
         }
         catch (Exception ex)
@@ -122,6 +125,7 @@
         {
             case ModelType.Classification:
                 Classification(data);
+                RocCurve(data);
                 _loading = false;
                 _calculated = true;
                 break;
@@ -139,8 +143,8 @@
 
     private void Classification(List<string[]> data)
     {
-        var confusionMatrixModel1 = new ConfusionMatrix();
-        var confusionMatrixModel2 = new ConfusionMatrix();
+        var classificationModel1 = new ClassificationModel();
+        var classificationModel2 = new ClassificationModel();
 
         foreach (var row in data.Skip(1).SkipLast(1).ToList())
         {
@@ -152,69 +156,126 @@
             if (realValue.Equals(">50K"))
             {
                 if (model1Value == realValue)
-                    confusionMatrixModel1.AddTruePositive();
+                    classificationModel1.AddTruePositive();
                 else
-                    confusionMatrixModel1.AddFalseNegative();
+                    classificationModel1.AddFalseNegative();
 
                 if (model2Value == realValue)
-                    confusionMatrixModel2.AddTruePositive();
+                    classificationModel2.AddTruePositive();
                 else
-                    confusionMatrixModel2.AddFalseNegative();
+                    classificationModel2.AddFalseNegative();
             }
 
     // False value == >50k
             else if (row[0].Equals("<=50K"))
             {
                 if (model1Value == realValue)
-                    confusionMatrixModel1.AddTrueNegative();
+                    classificationModel1.AddTrueNegative();
                 else
-                    confusionMatrixModel1.AddFalsePositive();
+                    classificationModel1.AddFalsePositive();
 
                 if (model2Value == realValue)
-                    confusionMatrixModel2.AddTrueNegative();
+                    classificationModel2.AddTrueNegative();
                 else
-                    confusionMatrixModel2.AddFalsePositive();
+                    classificationModel2.AddFalsePositive();
             }
         }
-        _classificationMatrix1 = confusionMatrixModel1;
-        _classificationMatrix2 = confusionMatrixModel2;
+        _classificationModel1 = classificationModel1;
+        _classificationModel2 = classificationModel2;
     }
 
     private void Regression(List<string[]> data)
     {
-        var fixedData = data.Skip(1).SkipLast(1).Select(x => x.Select(y => double.Parse(y)).ToArray()).ToList();
+        var fixedData = data
+            .Skip(1)
+            .SkipLast(1)
+            .Select(x => x
+                .Select(double.Parse)
+                .ToArray())
+            .ToList();
+
         int n = fixedData.Count;
-        double MAE1 = 0, MSE1 = 0, RMSE1 = 0, MAPE1 = 0;
-        double MAE2 = 0, MSE2 = 0, RMSE2 = 0, MAPE2 = 0;
+        double mae1 = 0, mse1 = 0, mape1 = 0;
+        double mae2 = 0, mse2 = 0, mape2 = 0;
 
         foreach (var row in fixedData)
         {
-            MAE1 += Math.Abs(row[0] - row[1]);
-            MAE2 += Math.Abs(row[0] - row[2]);
+            mae1 += Math.Abs(row[0] - row[1]);
+            mae2 += Math.Abs(row[0] - row[2]);
 
-            MSE1 += Math.Pow(row[0] - row[1], 2);
-            MSE2 += Math.Pow(row[0] - row[2], 2);
+            mse1 += Math.Pow(row[0] - row[1], 2);
+            mse2 += Math.Pow(row[0] - row[2], 2);
 
-            MAPE1 += Math.Abs(row[0] - row[1]) / row[0];
-            MAPE2 += Math.Abs(row[0] - row[2]) / row[0];
+            mape1 += Math.Abs(row[0] - row[1]) / row[0];
+            mape2 += Math.Abs(row[0] - row[2]) / row[0];
         }
-        MSE1 /= n;
-        MSE2 /= n;
+        mse1 /= n;
+        mse2 /= n;
 
         _regressionModel1 = new();
         _regressionModel2 = new();
 
-        _regressionModel1.MAE = MAE1 / n;
-        _regressionModel2.MAE = MAE2 / n;
+        _regressionModel1.MAE = mae1 / n;
+        _regressionModel2.MAE = mae2 / n;
 
-        _regressionModel1.MSE = MSE1;
-        _regressionModel2.MSE = MSE2;
+        _regressionModel1.MSE = mse1;
+        _regressionModel2.MSE = mse2;
 
-        _regressionModel1.RMSE = Math.Sqrt(MSE1);
-        _regressionModel2.RMSE = Math.Sqrt(MSE2);
+        _regressionModel1.RMSE = Math.Sqrt(mse1);
+        _regressionModel2.RMSE = Math.Sqrt(mse2);
 
-        _regressionModel1.MAPE = MAPE1 * (100.0 / n);
-        _regressionModel2.MAPE = MAPE2 * (100.0 / n);
+        _regressionModel1.MAPE = mape1 * (100.0 / n);
+        _regressionModel2.MAPE = mape2 * (100.0 / n);
+    }
+
+    private void RocCurve(List<string[]> data)
+    {
+        var classificationModel1 = new ClassificationModel();
+        var classificationModel2 = new ClassificationModel();
+
+        for (double step = 0.0; step < 1.0; step += 0.01)
+        {
+            classificationModel1.Reset();
+            classificationModel2.Reset();
+            foreach (var row in data.Skip(1).SkipLast(1).ToList())
+            {
+                var realValue = row[0];
+                var model1Value = double.Parse(row[2]) >= step ? ">50K" : "<=50K";
+                var model2Value = double.Parse(row[4]) >= step ? ">50K" : "<=50K";
+
+    // True value == <=50k
+                if (realValue.Equals(">50K"))
+                {
+                    if (model1Value == realValue)
+                        classificationModel1.AddTruePositive();
+                    else
+                        classificationModel1.AddFalseNegative();
+
+                    if (model2Value == realValue)
+                        classificationModel2.AddTruePositive();
+                    else
+                        classificationModel2.AddFalseNegative();
+                }
+
+    // False value == >50k
+                else if (row[0].Equals("<=50K"))
+                {
+                    if (model1Value == realValue)
+                        classificationModel1.AddTrueNegative();
+                    else
+                        classificationModel1.AddFalsePositive();
+
+                    if (model2Value == realValue)
+                        classificationModel2.AddTrueNegative();
+                    else
+                        classificationModel2.AddFalsePositive();
+                }
+            }
+            _rocValues1.Add(new(1 - classificationModel1.Specificity(), classificationModel1.Sensitivity()));
+            _rocValues2.Add(new(1 - classificationModel2.Specificity(), classificationModel2.Sensitivity()));
+        }
+        _rocValues1.Sort();
+        _rocValues2.Sort();
     }
 
     private enum ModelType

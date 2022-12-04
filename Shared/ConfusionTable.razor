@@ -4,10 +4,10 @@
     <div class="card-header">@Title</div>
     <div class="card-body">
         <h5 class="card-title">Model klasyfikacyjny</h5>
-        <p class="card-text">Prawdziwie negatywne = @TargetModel.GetTN()</p>
-        <p class="card-text">Fałszywie negatywne = @TargetModel.GetFN()</p>
-        <p class="card-text">Prawdziwie pozytywne = @TargetModel.GetTP()</p>
-        <p class="card-text">Fałszywie pozytywne = @TargetModel.GetFP()</p>
+        <p class="card-text">Prawdziwie negatywne = @TargetModel.GetTn()</p>
+        <p class="card-text">Fałszywie negatywne = @TargetModel.GetFn()</p>
+        <p class="card-text">Prawdziwie pozytywne = @TargetModel.GetTp()</p>
+        <p class="card-text">Fałszywie pozytywne = @TargetModel.GetFp()</p>
 
         <p class="card-text">
             Trafność = @TargetModel.Accuracy()
@@ -53,9 +53,9 @@
     public string Title { get; set; }
 
     [Parameter]
-    public ConfusionMatrix TargetModel { get; set; } = null!;
+    public ClassificationModel TargetModel { get; set; } = null!;
 
     [Parameter]
-    public ConfusionMatrix ComparativeModel { get; set; } = null!;
+    public ClassificationModel ComparativeModel { get; set; } = null!;
 
 }
