@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 @(GraphWidth + 100) @GraphHeight">
     <g stroke="gray" text-anchor="end">
         <text x="40" y="@ZeroY">0</text>
-        <text x="40" y="15">@Max</text>
+        <text x="40" y="15">1</text>
         <line x1="50" x2="50" y1="0" y2="@GraphHeight"/>
         <line x1="50" x2="@(GraphWidth + 50)" y1="@ZeroY" y2="@ZeroY"/>
     </g>
@@ -11,7 +11,7 @@
 
     @foreach (var (x, y) in Values.Select(value => (value.Item1, value.Item2)))
     {
-        <circle cx=@(Xpos(x)) cy=@(Ypos(y)) r="1" fill="lightblue"/>
+        <circle cx=@(Xpos(x)) cy=@(Ypos(y)) r="1" fill="black"/>
     }
 </svg>
 
@@ -30,7 +30,7 @@
 
     private double Xpos(double x)
     {
-        return 50.0 + x * (GraphWidth / Values.Select(x => x.Item1).Max());
+        return 50.0 + x * (GraphWidth / Values.Select(tuple => tuple.Item1).Max());
     }
 
     private double Ypos(double y)

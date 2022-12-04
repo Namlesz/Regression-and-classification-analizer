@@ -43,7 +43,7 @@
         {
             <div class="mt-5 d-inline-flex w-100">
                 <ConfusionTable Title="Model pierwszy" TargetModel="@_classificationModel1" ComparativeModel="@_classificationModel2"/>
-                <LineChart Values="@_rocValues2"/>
+                <LineChart Values="@_rocValues1"/>
             </div>
             <div class="mt-5 d-inline-flex w-100">
                 <ConfusionTable Title="Model drugi" TargetModel="@_classificationModel2" ComparativeModel="@_classificationModel1"/>
@@ -233,7 +233,7 @@
         var classificationModel1 = new ClassificationModel();
         var classificationModel2 = new ClassificationModel();
 
-        for (double step = 0.0; step < 1.0; step += 0.01)
+        for (double step = 0.01; step <= 1.0; step += 0.01)
         {
             classificationModel1.Reset();
             classificationModel2.Reset();
