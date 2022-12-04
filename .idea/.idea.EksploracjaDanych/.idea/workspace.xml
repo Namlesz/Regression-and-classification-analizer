@@ -5,10 +5,15 @@
     <projectFile profileName="IIS Express">EksploracjaDanych.csproj</projectFile>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a3f2934a-39d1-448f-83cc-cd31d5a84353" name="Changes" comment="Add some logic">
+    <list default="true" id="a3f2934a-39d1-448f-83cc-cd31d5a84353" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Models/RegressionModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Shared/RegressionResult.razor" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.EksploracjaDanych/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.EksploracjaDanych/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/EksploracjaDanych.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/EksploracjaDanych.csproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Pages/Index.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Index.razor" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Shared/ConfusionTable.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Shared/ConfusionTable.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wwwroot/icon-192.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/wwwroot/sample-data/weather.json" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,7 +22,6 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/946efa3d25338e611654d4abdacdd94fe99ad39a6c2fcec2b9671822c5636f/InputFile.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/adam.cherry/repos/EksploracjaDanych/Pages/Index.razor" root0="SKIP_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -30,16 +34,17 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;HotReloadSettingsPage&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "HotReloadSettingsPage",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected=".NET Launch Settings Profile.EksploracjaDanych">
     <configuration name="EksploracjaDanych" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/EksploracjaDanych.csproj" />
@@ -87,7 +92,8 @@
       <updated>1669835076051</updated>
       <workItem from="1669835084154" duration="51000" />
       <workItem from="1669835211353" duration="11691000" />
-      <workItem from="1670072188678" duration="10126000" />
+      <workItem from="1670072188678" duration="10979000" />
+      <workItem from="1670161208667" duration="3396000" />
     </task>
     <task id="LOCAL-00001" summary="Add some logic">
       <created>1670074793214</created>

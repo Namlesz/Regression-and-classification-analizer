@@ -35,19 +35,27 @@
 
 @if (_calculated)
 {
-    if ((ModelType)_modelType == ModelType.Classification)
-    {
-        <div class="mt-3 w-100">
+    <div class="mt-3 w-100">
+
+        @if ((ModelType)_modelType == ModelType.Classification && _classificationMatrix1 is not null && _classificationMatrix2 is not null)
+        {
             <div class="mt-5 d-inline-flex w-100">
-                <ConfusionTable ConfusionMatrix="@_classificationMatrix1" Title="Model pierwszy"/>
-                <LineChart Values="@_values.ToList()" Min="0" Max="100"></LineChart>
+                <ConfusionTable TargetModel="@_classificationMatrix1" Title="Model pierwszy" ComparativeModel="@_classificationMatrix2"/>
+                <LineChart Values="@_values.ToList()" Min="0" Max="100"/>
             </div>
             <div class="mt-5 d-inline-flex w-100">
-                <ConfusionTable ConfusionMatrix="@_classificationMatrix2" Title="Model drugi"/>
-                <LineChart Values="@_values.ToList()" Min="0" Max="100"></LineChart>
+                <ConfusionTable TargetModel="@_classificationMatrix2" Title="Model drugi" ComparativeModel="@_classificationMatrix1"/>
+                <LineChart Values="@_values.ToList()" Min="0" Max="100"/>
             </div>
-        </div>
-    }
+        }
+        @if ((ModelType)_modelType == ModelType.Regression && _regressionModel1 is not null && _regressionModel2 is not null)
+        {
+            <div class="mt-5 d-inline-flex w-100">
+                <RegressionResult Title="Model pierwszy" TargetModel="@_regressionModel1" ComparativeModel="@_regressionModel2"/>
+                <RegressionResult Title="Model drugi" TargetModel="@_regressionModel2" ComparativeModel="@_regressionModel1"/>
+            </div>
+        }
+    </div>
 }
 
 @code
@@ -55,7 +63,7 @@
     private readonly int _maxAllowedFileSize = 1024 * 1024 * 1024 * 1;
 
     // sample double array
-    private double[] _values = new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+    private double[] _values = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
     private bool _isBadModel;
     private bool _wrongFileType;
     private bool _loading;
@@ -64,8 +72,11 @@
 
     private IBrowserFile? _file;
 
-    private ConfusionMatrix _classificationMatrix1 = null!;
-    private ConfusionMatrix _classificationMatrix2 = null!;
+    private ConfusionMatrix? _classificationMatrix1;
+    private ConfusionMatrix? _classificationMatrix2;
+
+    private RegressionModel? _regressionModel1;
+    private RegressionModel? _regressionModel2;
 
     private Task OnInputFileChange(InputFileChangeEventArgs e)
     {
@@ -172,6 +183,38 @@
     private void Regression(List<string[]> data)
     {
         var fixedData = data.Skip(1).SkipLast(1).Select(x => x.Select(y => double.Parse(y)).ToArray()).ToList();
+        int n = fixedData.Count;
+        double MAE1 = 0, MSE1 = 0, RMSE1 = 0, MAPE1 = 0;
+        double MAE2 = 0, MSE2 = 0, RMSE2 = 0, MAPE2 = 0;
+
+        foreach (var row in fixedData)
+        {
+            MAE1 += Math.Abs(row[0] - row[1]);
+            MAE2 += Math.Abs(row[0] - row[2]);
+
+            MSE1 += Math.Pow(row[0] - row[1], 2);
+            MSE2 += Math.Pow(row[0] - row[2], 2);
+
+            MAPE1 += Math.Abs(row[0] - row[1]) / row[0];
+            MAPE2 += Math.Abs(row[0] - row[2]) / row[0];
+        }
+        MSE1 /= n;
+        MSE2 /= n;
+
+        _regressionModel1 = new();
+        _regressionModel2 = new();
+
+        _regressionModel1.MAE = MAE1 / n;
+        _regressionModel2.MAE = MAE2 / n;
+
+        _regressionModel1.MSE = MSE1;
+        _regressionModel2.MSE = MSE2;
+
+        _regressionModel1.RMSE = Math.Sqrt(MSE1);
+        _regressionModel2.RMSE = Math.Sqrt(MSE2);
+
+        _regressionModel1.MAPE = MAPE1 * (100.0 / n);
+        _regressionModel2.MAPE = MAPE2 * (100.0 / n);
     }
 
     private enum ModelType
