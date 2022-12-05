@@ -64,6 +64,7 @@
 @code
 {
     private readonly int _maxAllowedFileSize = 1024 * 1024 * 1024 * 1;
+    private readonly string _allowedFileType = "text/csv";
 
     private bool _isBadModel;
     private bool _wrongFileType;
@@ -87,7 +88,7 @@
         var file = e.File;
         try
         {
-            if (file.ContentType != "text/csv")
+            if (file.ContentType != _allowedFileType)
             {
                 _wrongFileType = true;
                 return Task.CompletedTask;
@@ -121,6 +122,7 @@
         var reader =
             await new StreamReader(_file.OpenReadStream(_maxAllowedFileSize)).ReadToEndAsync();
         var data = reader.Split("\r\n").Select(x => x.Split(",")).ToList();
+
         switch ((ModelType)_modelType)
         {
             case ModelType.Classification:
@@ -143,45 +145,33 @@
 
     private void Classification(List<string[]> data)
     {
-        var classificationModel1 = new ClassificationModel();
-        var classificationModel2 = new ClassificationModel();
+        var models = new List<ClassificationModel> { new(), new() };
 
         foreach (var row in data.Skip(1).SkipLast(1).ToList())
         {
             var realValue = row[0];
-            var model1Value = row[1];
-            var model2Value = row[3];
-
-    // True value == <=50k
-            if (realValue.Equals(">50K"))
+            for (int i = 0; i < 2; i++)
             {
-                if (model1Value == realValue)
-                    classificationModel1.AddTruePositive();
-                else
-                    classificationModel1.AddFalseNegative();
+                var val = i == 0 ? row[1] : row[3];
+                if (realValue.Equals(">50K"))
+                {
+                    if (val == realValue)
+                        models[i].AddTruePositive();
+                    else
+                        models[i].AddFalseNegative();
+                }
 
-                if (model2Value == realValue)
-                    classificationModel2.AddTruePositive();
-                else
-                    classificationModel2.AddFalseNegative();
-            }
-
-    // False value == >50k
-            else if (row[0].Equals("<=50K"))
-            {
-                if (model1Value == realValue)
-                    classificationModel1.AddTrueNegative();
-                else
-                    classificationModel1.AddFalsePositive();
-
-                if (model2Value == realValue)
-                    classificationModel2.AddTrueNegative();
-                else
-                    classificationModel2.AddFalsePositive();
+                else if (row[0].Equals("<=50K"))
+                {
+                    if (val == realValue)
+                        models[i].AddTrueNegative();
+                    else
+                        models[i].AddFalsePositive();
+                }
             }
         }
-        _classificationModel1 = classificationModel1;
-        _classificationModel2 = classificationModel2;
+        _classificationModel1 = models[0];
+        _classificationModel2 = models[1];
     }
 
     private void Regression(List<string[]> data)
@@ -195,84 +185,60 @@
             .ToList();
 
         int n = fixedData.Count;
-        double mae1 = 0, mse1 = 0, mape1 = 0;
-        double mae2 = 0, mse2 = 0, mape2 = 0;
+        var models = new List<RegressionModel> { new(), new() };
 
-        foreach (var row in fixedData)
+        for (int i = 0; i < 2; i++)
         {
-            mae1 += Math.Abs(row[0] - row[1]);
-            mae2 += Math.Abs(row[0] - row[2]);
-
-            mse1 += Math.Pow(row[0] - row[1], 2);
-            mse2 += Math.Pow(row[0] - row[2], 2);
-
-            mape1 += Math.Abs(row[0] - row[1]) / row[0];
-            mape2 += Math.Abs(row[0] - row[2]) / row[0];
+            foreach (var row in fixedData)
+            {
+                var realVal = row[0];
+                var predVal = i == 0 ? row[1] : row[2];
+                models[i].MAE += Math.Abs(realVal - predVal);
+                models[i].MSE += Math.Pow(realVal - predVal, 2);
+                models[i].MAPE += Math.Abs(realVal - predVal) / realVal;
+            }
+            models[i].MSE /= n;
+            models[i].MAE /= n;
+            models[i].RMSE = Math.Sqrt(models[i].MSE);
+            models[i].MAPE = 100 * models[i].MAPE / n;
         }
-        mse1 /= n;
-        mse2 /= n;
 
-        _regressionModel1 = new();
-        _regressionModel2 = new();
-
-        _regressionModel1.MAE = mae1 / n;
-        _regressionModel2.MAE = mae2 / n;
-
-        _regressionModel1.MSE = mse1;
-        _regressionModel2.MSE = mse2;
-
-        _regressionModel1.RMSE = Math.Sqrt(mse1);
-        _regressionModel2.RMSE = Math.Sqrt(mse2);
-
-        _regressionModel1.MAPE = mape1 * (100.0 / n);
-        _regressionModel2.MAPE = mape2 * (100.0 / n);
+        _regressionModel1 = models[0];
+        _regressionModel2 = models[1];
     }
 
     private void RocCurve(List<string[]> data)
     {
-        var classificationModel1 = new ClassificationModel();
-        var classificationModel2 = new ClassificationModel();
+        var models = new List<ClassificationModel> { new(), new() };
 
-        for (double step = 0.01; step <= 1.0; step += 0.01)
+        for (double step = 0.0; step <= 1.0; step += 0.01)
         {
-            classificationModel1.Reset();
-            classificationModel2.Reset();
-            foreach (var row in data.Skip(1).SkipLast(1).ToList())
+            for (int i = 0; i < 2; i++)
             {
-                var realValue = row[0];
-                var model1Value = double.Parse(row[2]) >= step ? ">50K" : "<=50K";
-                var model2Value = double.Parse(row[4]) >= step ? ">50K" : "<=50K";
-
-    // True value == <=50k
-                if (realValue.Equals(">50K"))
+                models[i].Reset();
+                foreach (var row in data.Skip(1).SkipLast(1).ToList())
                 {
-                    if (model1Value == realValue)
-                        classificationModel1.AddTruePositive();
-                    else
-                        classificationModel1.AddFalseNegative();
-
-                    if (model2Value == realValue)
-                        classificationModel2.AddTruePositive();
-                    else
-                        classificationModel2.AddFalseNegative();
-                }
-
-    // False value == >50k
-                else if (row[0].Equals("<=50K"))
-                {
-                    if (model1Value == realValue)
-                        classificationModel1.AddTrueNegative();
-                    else
-                        classificationModel1.AddFalsePositive();
-
-                    if (model2Value == realValue)
-                        classificationModel2.AddTrueNegative();
-                    else
-                        classificationModel2.AddFalsePositive();
+                    var realValue = row[0];
+                    var val = i == 0 ? double.Parse(row[2]) >= step ? ">50K" : "<=50K" : double.Parse(row[4]) >= step ? ">50K" : "<=50K";
+                    if (realValue.Equals(">50K"))
+                    {
+                        if (val == realValue)
+                            models[i].AddTruePositive();
+                        else
+                            models[i].AddFalseNegative();
+                    }
+                    else if (realValue.Equals("<=50K"))
+                    {
+                        if (val == realValue)
+                            models[i].AddTrueNegative();
+                        else
+                            models[i].AddFalsePositive();
+                    }
                 }
             }
-            _rocValues1.Add(new(1 - classificationModel1.Specificity(), classificationModel1.Sensitivity()));
-            _rocValues2.Add(new(1 - classificationModel2.Specificity(), classificationModel2.Sensitivity()));
+
+            _rocValues1.Add(new(1 - models[0].Specificity(), models[0].Sensitivity()));
+            _rocValues2.Add(new(1 - models[1].Specificity(), models[1].Sensitivity()));
         }
         _rocValues1.Sort();
         _rocValues2.Sort();
