@@ -42,11 +42,11 @@
              _classificationModel1 is not null && _classificationModel2 is not null)
         {
             <div class="mt-5 d-inline-flex w-100">
-                <ConfusionTable Title="Model pierwszy" TargetModel="@_classificationModel1" ComparativeModel="@_classificationModel2"/>
+                <ClassificationResult Title="Model pierwszy" TargetModel="@_classificationModel1" ComparativeModel="@_classificationModel2"/>
                 <LineChart Values="@_rocValues1"/>
             </div>
             <div class="mt-5 d-inline-flex w-100">
-                <ConfusionTable Title="Model drugi" TargetModel="@_classificationModel2" ComparativeModel="@_classificationModel1"/>
+                <ClassificationResult Title="Model drugi" TargetModel="@_classificationModel2" ComparativeModel="@_classificationModel1"/>
                 <LineChart Values="@_rocValues2"/>
             </div>
         }
@@ -79,8 +79,8 @@
     private RegressionModel? _regressionModel1;
     private RegressionModel? _regressionModel2;
 
-    private List<Tuple<double, double>> _rocValues1 = new(new[] { new Tuple<double, double>(0.0, 0.0) });
-    private List<Tuple<double, double>> _rocValues2 = new(new[] { new Tuple<double, double>(0.0, 0.0) });
+    private readonly List<Tuple<double, double>> _rocValues1 = new(new[] { new Tuple<double, double>(0.0, 0.0) });
+    private readonly List<Tuple<double, double>> _rocValues2 = new(new[] { new Tuple<double, double>(0.0, 0.0) });
 
     private Task OnInputFileChange(InputFileChangeEventArgs e)
     {
@@ -276,6 +276,21 @@
         }
         _rocValues1.Sort();
         _rocValues2.Sort();
+
+        _classificationModel1!.SetAuc(Auc(_rocValues1));
+        _classificationModel2!.SetAuc(Auc(_rocValues2));
+    }
+
+    private double Auc(List<Tuple<double, double>> pointSet)
+    {
+        var result = 0.0;
+        for (int i = 1; i < pointSet.Count; i++)
+        {
+            var h = pointSet[i].Item1 - pointSet[i - 1].Item1;
+            result += h * (pointSet[i].Item2 + pointSet[i - 1].Item2) / 2;
+        }
+
+        return result;
     }
 
     private enum ModelType

@@ -44,13 +44,20 @@
                 <i class="oi oi-check"></i>
             }
         </p>
+        <p class="card-text fw-bold">
+            AUC = @TargetModel.GetAuc()
+            @if (TargetModel.GetAuc() > ComparativeModel.GetAuc())
+            {
+                <i class="oi oi-check"></i>
+            }
+        </p>
     </div>
 </div>
 
 @code {
 
     [Parameter]
-    public string Title { get; set; }
+    public string Title { get; set; } = null!;
 
     [Parameter]
     public ClassificationModel TargetModel { get; set; } = null!;

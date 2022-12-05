@@ -7,6 +7,18 @@ public class ClassificationModel
     private double Fp { get; set; }
     private double Fn { get; set; }
 
+    private double Auc { get; set; }
+
+    public double GetAuc()
+    {
+        return Auc;
+    }
+    
+    public void SetAuc(double auc)
+    {
+        Auc = auc;
+    }
+    
     public double GetTp()
     {
         return Tp;
