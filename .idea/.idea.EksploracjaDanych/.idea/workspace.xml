@@ -5,22 +5,7 @@
     <projectFile profileName="IIS Express">EksploracjaDanych.csproj</projectFile>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a3f2934a-39d1-448f-83cc-cd31d5a84353" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/wwwroot/icon-192.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/wwwroot/icon-512.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/wwwroot/manifest.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/wwwroot/service-worker.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/wwwroot/service-worker.published.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.EksploracjaDanych/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.EksploracjaDanych/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/EksploracjaDanych.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/EksploracjaDanych.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/EksploracjaDanych.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/EksploracjaDanych.sln.DotSettings.user" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/RegressionModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/RegressionModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Index.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Index.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Shared/LineChart.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Shared/LineChart.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Shared/RegressionResult.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Shared/RegressionResult.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wwwroot/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/wwwroot/index.html" afterDir="false" />
-    </list>
+    <list default="true" id="a3f2934a-39d1-448f-83cc-cd31d5a84353" name="Changes" comment="Add PWA, improve app speed" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -52,7 +37,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "settings.editor.selected.configurable": "configurable.group.appearance",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -112,7 +97,7 @@
       <workItem from="1670395330192" duration="36000" />
       <workItem from="1670395417704" duration="191000" />
       <workItem from="1670400954668" duration="1617000" />
-      <workItem from="1670407057681" duration="2400000" />
+      <workItem from="1670407057681" duration="2763000" />
     </task>
     <task id="LOCAL-00001" summary="Add some logic">
       <created>1670074793214</created>
@@ -121,7 +106,14 @@
       <option name="project" value="LOCAL" />
       <updated>1670074793214</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Add PWA, improve app speed">
+      <created>1670409883547</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1670409883548</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -144,6 +136,7 @@
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="Add some logic" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add some logic" />
+    <MESSAGE value="Add PWA, improve app speed" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add PWA, improve app speed" />
   </component>
 </project>
