@@ -32,6 +32,10 @@
             <span>Oblicz model</span>
         }
     </button>
+    @if (_loading)
+    {
+        <p class="text-warning mt-1">Może to potrwać nawet do 90 sec...</p>
+    }
 </div>
 
 @if (_calculated)
@@ -128,6 +132,7 @@
         _wrongFileType = false;
         _loading = true;
 
+    // Wrong way to do it, but it's just a demo.
         var reader =
             await new StreamReader(_file.OpenReadStream(_maxAllowedFileSize)).ReadToEndAsync();
         var data = reader.Split("\r\n").Select(x => x.Split(",")).ToArray();
@@ -168,7 +173,7 @@
         }
         watch.Stop();
         var elapsedMs = watch.ElapsedMilliseconds;
-        Console.WriteLine(elapsedMs);
+        Console.WriteLine($"Czas generowania: {elapsedMs}ms");
     }
 
     private void Classification(string[][] data)
