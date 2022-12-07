@@ -2,8 +2,8 @@ namespace EksploracjaDanych.Models;
 
 public class RegressionModel
 {
-    public double MAE { get; set; }
-    public double MSE { get; set; }
-    public double RMSE { get; set; }
-    public double MAPE { get; set; }
+    public double Mae { get; set; }
+    public double Mse { get; set; }
+    public double Rmse { get; set; }
+    public double Mape { get; set; }
 }

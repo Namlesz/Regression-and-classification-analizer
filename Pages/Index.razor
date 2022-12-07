@@ -61,6 +61,11 @@
     </div>
 }
 
+@if (_parseDataError)
+{
+    <p class="text-danger mt-1">Błąd podczas parsowania danych.</p>
+}
+
 @code
 {
     private readonly int _maxAllowedFileSize = 1024 * 1024 * 1024 * 1;
@@ -70,6 +75,8 @@
     private bool _wrongFileType;
     private bool _loading;
     private bool _calculated;
+    private bool _parseDataError;
+
     private int _modelType = -1;
 
     private IBrowserFile? _file;
@@ -86,6 +93,8 @@
     private Task OnInputFileChange(InputFileChangeEventArgs e)
     {
         var file = e.File;
+        _calculated = false;
+        _parseDataError = false;
         try
         {
             if (file.ContentType != _allowedFileType)
@@ -121,33 +130,52 @@
 
         var reader =
             await new StreamReader(_file.OpenReadStream(_maxAllowedFileSize)).ReadToEndAsync();
-        var data = reader.Split("\r\n").Select(x => x.Split(",")).ToList();
-
+        var data = reader.Split("\r\n").Select(x => x.Split(",")).ToArray();
+        var watch = System.Diagnostics.Stopwatch.StartNew();
         switch ((ModelType)_modelType)
         {
             case ModelType.Classification:
-                Classification(data);
-                RocCurve(data);
+                try
+                {
+                    Classification(data);
+                    RocCurve(data);
+                    _calculated = true;
+                    _parseDataError = false;
+                }
+                catch (Exception)
+                {
+                    _parseDataError = true;
+                }
                 _loading = false;
-                _calculated = true;
                 break;
 
             case ModelType.Regression:
-                Regression(data);
+                try
+                {
+                    Regression(data);
+                    _calculated = true;
+                    _parseDataError = false;
+                }
+                catch (Exception)
+                {
+                    _parseDataError = true;
+                }
                 _loading = false;
-                _calculated = true;
                 break;
 
             default:
                 throw new ArgumentOutOfRangeException();
         }
+        watch.Stop();
+        var elapsedMs = watch.ElapsedMilliseconds;
+        Console.WriteLine(elapsedMs);
     }
 
-    private void Classification(List<string[]> data)
+    private void Classification(string[][] data)
     {
         var models = new List<ClassificationModel> { new(), new() };
-
-        foreach (var row in data.Skip(1).SkipLast(1).ToList())
+        var dataSet = data.Skip(1).SkipLast(1).ToArray();
+        foreach (var row in dataSet)
         {
             var realValue = row[0];
             for (int i = 0; i < 2; i++)
@@ -174,49 +202,47 @@
         _classificationModel2 = models[1];
     }
 
-    private void Regression(List<string[]> data)
+    private void Regression(string[][] data)
     {
-        var fixedData = data
+        var parsedList = data
             .Skip(1)
             .SkipLast(1)
-            .Select(x => x
-                .Select(double.Parse)
-                .ToArray())
+            .Select(x => x.Select(double.Parse).ToArray())
             .ToList();
-
-        int n = fixedData.Count;
+        int n = parsedList.Count;
         var models = new List<RegressionModel> { new(), new() };
 
         for (int i = 0; i < 2; i++)
         {
-            foreach (var row in fixedData)
+            foreach (var row in parsedList)
             {
                 var realVal = row[0];
                 var predVal = i == 0 ? row[1] : row[2];
-                models[i].MAE += Math.Abs(realVal - predVal);
-                models[i].MSE += Math.Pow(realVal - predVal, 2);
-                models[i].MAPE += Math.Abs(realVal - predVal) / realVal;
+                models[i].Mae += Math.Abs(realVal - predVal);
+                models[i].Mse += Math.Pow(realVal - predVal, 2);
+                models[i].Mape += Math.Abs(realVal - predVal) / realVal;
             }
-            models[i].MSE /= n;
-            models[i].MAE /= n;
-            models[i].RMSE = Math.Sqrt(models[i].MSE);
-            models[i].MAPE = 100 * models[i].MAPE / n;
+            models[i].Mse /= n;
+            models[i].Mae /= n;
+            models[i].Rmse = Math.Sqrt(models[i].Mse);
+            models[i].Mape = 100 * models[i].Mape / n;
         }
 
         _regressionModel1 = models[0];
         _regressionModel2 = models[1];
     }
 
-    private void RocCurve(List<string[]> data)
+    private void RocCurve(string[][] data)
     {
         var models = new List<ClassificationModel> { new(), new() };
+        var dataSet = data.Skip(1).SkipLast(1).ToArray();
 
         for (double step = 0.0; step <= 1.0; step += 0.01)
         {
             for (int i = 0; i < 2; i++)
             {
                 models[i].Reset();
-                foreach (var row in data.Skip(1).SkipLast(1).ToList())
+                foreach (var row in dataSet)
                 {
                     var realValue = row[0];
                     var val = i == 0 ? double.Parse(row[2]) >= step ? ">50K" : "<=50K" : double.Parse(row[4]) >= step ? ">50K" : "<=50K";

@@ -16,15 +16,16 @@
 </svg>
 
 @code {
+
     [Parameter]
     public List<Tuple<double, double>> Values { get; set; } = new();
-    
-    private const double GraphHeight = 300.0;
-    private const double GraphWidth = 500.0;
-    
+
+        private const double GraphHeight = 300.0;
+        private const double GraphWidth = 500.0;
+
     private double Max => Values.Max(value => value.Item2);
     private double Min => Values.Min(value => value.Item2);
-    
+
     private double GraphRange => Math.Abs(Max) + Math.Abs(Min);
     private double ZeroY => Math.Abs(Max) / GraphRange * GraphHeight;
 
@@ -42,7 +43,7 @@
     private string PointList =>
         string.Join(" ",
             Values.Select(
-                (y) => $"{Xpos(y.Item1)},{Ypos(y.Item2)}"
+                y => $"{Xpos(y.Item1)},{Ypos(y.Item2)}"
                 )
             );
 

@@ -4,29 +4,29 @@
     <div class="card-body">
         <h5 class="card-title">Model Regresyjny</h5>
         <p class="card-text">
-            MAE = @TargetModel.MAE
-            @if (TargetModel.MAE < ComparativeModel.MAE)
+            MAE = @TargetModel.Mae
+            @if (TargetModel.Mae < ComparativeModel.Mae)
             {
                 <i class="oi oi-check"></i>
             }
         </p>
         <p class="card-text">
-            MSE = @TargetModel.MSE
-            @if (TargetModel.MSE < ComparativeModel.MSE)
+            MSE = @TargetModel.Mse
+            @if (TargetModel.Mse < ComparativeModel.Mse)
             {
                 <i class="oi oi-check"></i>
             }
         </p>
         <p class="card-text">
-            RMSE = @TargetModel.RMSE
-            @if (TargetModel.RMSE < ComparativeModel.RMSE)
+            RMSE = @TargetModel.Rmse
+            @if (TargetModel.Rmse < ComparativeModel.Rmse)
             {
                 <i class="oi oi-check"></i>
             }
         </p>
         <p class="card-text">
-            MAPE = @TargetModel.MAPE%
-            @if (TargetModel.MAPE < ComparativeModel.MAPE)
+            MAPE = @TargetModel.Mape%
+            @if (TargetModel.Mape < ComparativeModel.Mape)
             {
                 <i class="oi oi-check"></i>
             }
@@ -37,7 +37,7 @@
 @code {
 
     [Parameter]
-    public string Title { get; set; }
+    public string Title { get; set; } = null!;
 
     [Parameter]
     public RegressionModel TargetModel { get; set; } = null!;
