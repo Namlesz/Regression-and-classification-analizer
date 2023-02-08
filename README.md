@@ -4,6 +4,10 @@ App write for the "Eksploracja Danych" course at the Nicolaus Copernicus Univers
 
 In directory "Sample Files" you can find sample files for the program.
 
+## Todo
+Move logic methods from .razor to separate files.
+Change projects structure. 
+
 ## Tech
 App is written in C# and .NET Blazor WebAssembly, it includes PWA support.
 
